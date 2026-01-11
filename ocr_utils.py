@@ -1,8 +1,19 @@
-import pytesseract
-import cv2
+try:
+    import cv2
+    import pytesseract
+except Exception:
+    cv2 = None
+    pytesseract = None
+
 import re
 
 def extract_readings_from_image(image_path):
+    if cv2 is None or pytesseract is None:
+        raise RuntimeError(
+            "OCR is not available in this environment. "
+            "Please use Manual or Excel upload."
+        )
+
     img = cv2.imread(image_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     text = pytesseract.image_to_string(gray)
@@ -14,4 +25,5 @@ def extract_readings_from_image(image_path):
             flat = match.group(1).upper().replace("I", "1")
             value = int(match.group(2))
             readings.append((flat, value))
+
     return readings
