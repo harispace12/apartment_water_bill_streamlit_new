@@ -21,19 +21,40 @@ input_mode = st.radio(
 readings = []
 
 if input_mode == "Image Upload":
-    img = st.file_uploader("Upload meter reading image", type=["jpg", "png"])
+    img = st.file_uploader("Upload handwritten meter reading image", type=["jpg", "png"])
+
     if img:
         with open("temp.png", "wb") as f:
             f.write(img.getbuffer())
 
-        extracted = extract_readings_from_image("temp.png")
+        extracted = extract_meter_readings("temp.png")
 
         if not extracted:
-            st.error("No valid meter readings detected. Please upload a clearer image.")
+            st.error("No meter readings detected. Please upload a clearer image.")
         else:
-            df = pd.DataFrame(extracted)
-            st.info("Please verify OCR results before proceeding")
-            st.dataframe(df)
+            st.info("Please map readings to flats and verify")
+
+            rows = []
+            for r in extracted:
+                rows.append({
+                    "Flat": "",
+                    "Reading": r["reading"],
+                    "Confidence (%)": r["confidence"]
+                })
+
+            df = pd.DataFrame(rows)
+
+            st.data_editor(
+                df,
+                column_config={
+                    "Flat": st.column_config.SelectboxColumn(
+                        "Flat",
+                        options=MASTER_FLATS
+                    )
+                },
+                key="ocr_table"
+            )
+
 
 
 
