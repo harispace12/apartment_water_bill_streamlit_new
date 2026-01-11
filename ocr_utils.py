@@ -1,29 +1,23 @@
-try:
-    import cv2
-    import pytesseract
-except Exception:
-    cv2 = None
-    pytesseract = None
-
+import easyocr
 import re
 
-def extract_readings_from_image(image_path):
-    if cv2 is None or pytesseract is None:
-        raise RuntimeError(
-            "OCR is not available in this environment. "
-            "Please use Manual or Excel upload."
-        )
+# Initialize once (important for performance)
+reader = easyocr.Reader(['en'], gpu=False)
 
-    img = cv2.imread(image_path)
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    text = pytesseract.image_to_string(gray)
+def extract_readings_from_image(image_path):
+    results = reader.readtext(image_path)
 
     readings = []
-    for line in text.split("\n"):
-        match = re.match(r'([A-Za-z0-9]+)\s*-\s*(\d+)', line)
+    for bbox, text, confidence in results:
+        text = text.upper().replace("I", "1").replace("O", "0")
+        match = re.match(r'(G[1-9]|[1-5]0[1-9])\s*[-:]?\s*(\d+)', text)
         if match:
-            flat = match.group(1).upper().replace("I", "1")
+            flat = match.group(1)
             value = int(match.group(2))
-            readings.append((flat, value))
+            readings.append({
+                "flat": flat,
+                "reading": value,
+                "confidence": round(confidence * 100, 2)
+            })
 
     return readings
