@@ -26,13 +26,15 @@ if input_mode == "Image Upload":
         with open("temp.png", "wb") as f:
             f.write(img.getbuffer())
 
-        try:
-            extracted = extract_readings_from_image("temp.png")
-            df = pd.DataFrame(extracted, columns=["Flat", "Current Reading"])
+        extracted = extract_readings_from_image("temp.png")
+
+        if not extracted:
+            st.error("No valid meter readings detected. Please upload a clearer image.")
+        else:
+            df = pd.DataFrame(extracted)
+            st.info("Please verify OCR results before proceeding")
             st.dataframe(df)
-        except Exception as e:
-            st.warning(str(e))
-            st.info("👉 Please use Manual Entry or Excel Upload.")
+
 
 
 elif input_mode == "Manual Entry":
