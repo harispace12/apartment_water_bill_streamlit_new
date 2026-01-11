@@ -20,14 +20,20 @@ input_mode = st.radio(
 
 readings = []
 
-if input_mode == "Image Upload":
+elif input_mode == "Image Upload":
     img = st.file_uploader("Upload meter reading image", type=["jpg", "png"])
     if img:
         with open("temp.png", "wb") as f:
             f.write(img.getbuffer())
-        extracted = extract_readings_from_image("temp.png")
-        df = pd.DataFrame(extracted, columns=["Flat", "Current Reading"])
-        st.dataframe(df)
+
+        try:
+            extracted = extract_readings_from_image("temp.png")
+            df = pd.DataFrame(extracted, columns=["Flat", "Current Reading"])
+            st.dataframe(df)
+        except Exception as e:
+            st.warning(str(e))
+            st.info("👉 Please use Manual Entry or Excel Upload.")
+
 
 elif input_mode == "Manual Entry":
     flat = normalize_flat(st.text_input("Flat Number"))
