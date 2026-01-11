@@ -20,7 +20,7 @@ input_mode = st.radio(
 
 readings = []
 
-elif input_mode == "Image Upload":
+if input_mode == "Image Upload":
     img = st.file_uploader("Upload meter reading image", type=["jpg", "png"])
     if img:
         with open("temp.png", "wb") as f:
