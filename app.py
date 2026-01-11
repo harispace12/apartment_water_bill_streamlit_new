@@ -3,7 +3,7 @@ import pandas as pd
 import json
 from validations import *
 from billing import *
-from ocr_utils import *
+from ocr_utils import extract_meter_readings
 
 st.set_page_config(page_title="Apartment Water Bill", layout="wide")
 st.title("🚰 Apartment Water Bill Calculator")
